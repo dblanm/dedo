@@ -114,7 +114,8 @@ class BulletManipulator:
         # Reset to initial position and visualize.
         self.rest_qpos = (self.info.joint_maxpos+self.info.joint_minpos)/2
         if rest_arm_qpos is not None:
-            assert(len(self.info.arm_jids_lst)==len(rest_arm_qpos))
+            # print(f"Length of qpos={len(rest_arm_qpos)}\n Length of arm jids={len(self.info.arm_jids_lst)}, arm jids={self.info.arm_jids_lst}")
+            assert(len(self.info.arm_jids_lst)==len(rest_arm_qpos))  # Kinova 13 != 7, franka 7
             self.rest_qpos[self.info.arm_jids_lst] = rest_arm_qpos[:]
         if left_rest_arm_qpos is not None:
             assert(len(self.info.left_arm_jids_lst)==len(left_rest_arm_qpos))
@@ -198,6 +199,11 @@ class BulletManipulator:
                 left_finger_link_ids.append(j)
         assert(ee_link_id is not None)
         assert(ee_jid is not None)
+        # robot_id, joint_ids, joint_names,
+        # joint_minpos, joint_maxpos,
+        # joint_maxforce, joint_maxvel,
+        # ee_link_id, arm_jids_lst, ee_jid, finger_link_ids,
+        # finger_jids_lst
         info = ManipulatorInfo(
             robot_id, np.array(joint_ids), np.array(joint_names),
             np.array(joint_minpos), np.array(joint_maxpos),

@@ -17,6 +17,9 @@ import gym
 import numpy as np
 import pybullet
 
+from ..utils.anchor_utils import (
+    attach_anchor, command_anchor_velocity, create_anchor, create_anchor_geom,
+    pin_fixed, change_anchor_color_gray)
 from ..utils.bullet_manipulator import BulletManipulator
 from ..utils.init_utils import get_preset_properties
 from ..utils.mesh_utils import get_mesh_data
@@ -49,8 +52,14 @@ class DeformRobotEnv(DeformEnv):
     def load_objects(self, sim, args, debug):
         res = super(DeformRobotEnv, self).load_objects(sim, args, debug)
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
+        # print(f"Attempting to load robot, data_path={data_path}")
         sim.setAdditionalSearchPath(data_path)
-        robot_info = ROBOT_INFO.get(f'franka{self.num_anchors:d}', None)
+        # Franka training works ok
+        # robot_info = ROBOT_INFO.get(f'franka{self.num_anchors:d}', None)
+
+        # robot_info = ROBOT_INFO.get(f'kinova{self.num_anchors:d}', None)
+        robot_info = ROBOT_INFO.get(f'ur5{self.num_anchors:d}', None)
+        # print(f"Robot info filename is={robot_info['file_name']}")
         assert(robot_info is not None)  # make sure robot_info is ok
         robot_path = os.path.join(data_path, 'robots',
                                   robot_info['file_name'])
@@ -72,22 +81,55 @@ class DeformRobotEnv(DeformEnv):
             debug=debug)
         return res
 
+    def robot_to_anchor(self, object_id, contact_link_id, link_id,
+                        object_pos):
+        body_pose = pybullet.getLinkState(self.robot.info.robot_id, link_id)
+        object_pose = pybullet.getBasePositionAndOrientation(object_id)
+        world_to_body = pybullet.invertTransform(
+            body_pose[0], body_pose[1])
+        object_to_body = pybullet.multiplyTransforms(
+            world_to_body[0], world_to_body[1],
+            object_pose[0], object_pose[1])
+        contact_constraint = pybullet.createConstraint(
+            parentBodyUniqueId=self.robot.info.robot_id,
+            parentLinkIndex=link_id,
+            childBodyUniqueId=object_id,
+            childLinkIndex=contact_link_id,
+            jointType=self.sim.JOINT_FIXED,
+            jointAxis=(0, 0, 0),
+            parentFramePosition=(0, 0, 0),
+            childFramePosition=(0, 0, 0))
+            # parentFramePosition=body_pose[0],
+            # childFramePosition=object_pos[0])
+
+        return contact_constraint
+
+    #     example self.base_cid = sim.createConstraint(
+    #                 self.info.robot_id, -1, -1, -1, sim.JOINT_FIXED, [0.0, 0, 0],
+    #                 [0.0, 0, 0], base_pos)
+
     def make_anchors(self):
+        # TODO THE ANCHOR TO THE ROBOT IS DONE HERE, HOW TO FIX IT??
         preset_dynamic_anchor_vertices = get_preset_properties(
             DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
         _, mesh = get_mesh_data(self.sim, self.deform_id)
         assert (preset_dynamic_anchor_vertices is not None)
+
         for i in range(self.num_anchors):  # make anchors
-            anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]])
-            if not np.isfinite(anchor_pos).all():
-                print('anchor_pos not sane:', anchor_pos)
-                input('Press enter to exit')
-                exit(1)
+            # First create the anchor point
+            anchor_init_pos = self.args.anchor_init_pos if (i % 2) == 0 else \
+                self.args.other_anchor_init_pos
+            anchor_id, anchor_pos, anchor_vertices = create_anchor(
+                self.sim, anchor_init_pos, i,
+                preset_dynamic_anchor_vertices, mesh, radius=0.0001)
+            attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
+
+            # Now anchor the robot to the anchor
             link_id = self.robot.info.ee_link_id if i == 0 else \
                 self.robot.info.left_ee_link_id
-            self.sim.createSoftBodyAnchor(
-                self.deform_id, preset_dynamic_anchor_vertices[i][0],
-                self.robot.info.robot_id, link_id)
+
+            self.robot_to_anchor(object_id=anchor_id, contact_link_id=anchor_id,
+                                 link_id=link_id, object_pos=anchor_pos)
 
     def do_action(self, action, unscaled=False):
         # Note: action is in [-1,1], so we unscale pos (ori is sin,cos so ok).

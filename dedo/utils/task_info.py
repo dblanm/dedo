@@ -1318,7 +1318,6 @@ DEFAULT_CAM_PROJECTION = {
                          0.0, 0.0, -1.0000200271606445, -1.0,
                          0.0, 0.0, -0.02000020071864128, 0.0)
 }
-
 ROBOT_INFO = {
     'franka2': {
         'file_name': 'franka/franka_dual.urdf',
@@ -1345,5 +1344,65 @@ ROBOT_INFO = {
             # for [2.5, 1.5, 1.0]
             [0.4083, 0.4691, -0.6216, -2.9606, -0.9926, 3.4903, 1.5129]
         ),
+    },
+    'kinova2': {
+        'file_name': 'kinova/kinova_dual.urdf',
+        'ee_joint_name': 'joint_7_r',
+        # 'ee_link_name': 'left_inner_finger_pad_r',
+        # 'left_ee_link_name': 'left_inner_finger_pad_l',
+        # 'ee_link_name': 'robotiq_arg2f_base_link_r',
+        # 'ee_link_name': 'end_effector_l',
+        'ee_link_name': 'right_inner_finger_pad_r',
+        'left_ee_joint_name': 'joint_7_l',
+        'left_ee_link_name': 'right_inner_finger_pad_l',
+        # 'left_ee_link_name': 'left_inner_finger_pad_l',
+        'global_scaling': 10.0,
+        'use_fixed_base': True,
+        'base_pos': np.array([5.0, 1.5, 0]),
+        'rest_arm_qpos': np.array(
+            [-0.7332, -0.0135, 0.1112, -0.718, 0.0978, 1.99, -0.5592, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]),
+        'left_rest_arm_qpos': np.array(
+            [0.7732, -0.0135, -0.0212, -0.68, 0.0978, 1.99, -0.5592, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]),
+    },
+    'kinova1': {
+        'file_name': 'kinova/kinova_small_fingers.urdf',
+        'ee_joint_name': 'joint_7',
+        'ee_link_name': 'right_inner_finger_pad',
+        'global_scaling': 10.0,
+        'use_fixed_base': True,
+        'base_pos': np.array([5.0, 1.5, 0]),
+        'rest_arm_qpos': np.array(
+            # for [2.5, 1.5, 1.0]
+            # [0.4083, 0.4691, -0.6216, -2.9606, -0.9926, 3.4903, 1.5129, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
+            [0.4083, 0.4691, -0.6216, -2.9606, -0.9926, 3.4903, 1.5129, 0.8, 0.8, 0.0, 0.0, 0.8, 0.8]
+        ),
+    },
+    'ur52': {
+        'file_name': 'ur5/ur5_dual.urdf',
+        'ee_joint_name': 'ee_fixed_joint_r',
+        'ee_link_name': 'right_inner_finger_pad_r',
+        'left_ee_joint_name': 'ee_fixed_joint_l',
+        'left_ee_link_name': 'right_inner_finger_pad_l',
+        'global_scaling': 10.0,
+        'use_fixed_base': True,
+        'base_pos': np.array([5.0, 1.5, 0]),
+        'rest_arm_qpos': np.array(
+            # [-0.7332, -0.0135, 0.1112, -0.718, 0.0978, 1.99, -0.5592, 0.8, 0.8, 0.8, 0.8, 0.8]),
+            [-0.62, -1.63, 0.73, -0.03, -0.19, 0.0, -0.5592, 0.8, 0.8, 0.8, 0.8, 0.8]),
+        'left_rest_arm_qpos': np.array(
+            [0.62, -1.63, -0.73, -2.96, -0.19, 0.0, -0.5592, 0.8, 0.8, 0.8, 0.8, 0.8]),
+    },
+    'ur51': {
+        'file_name': 'ur5/ur5_small_fingers.urdf',
+        # 'ee_joint_name': 'wrist_3_joint',
+        'ee_joint_name': 'ee_fixed_joint',
+        'ee_link_name': 'right_inner_finger_pad',
+        'global_scaling': 10.0,
+        'use_fixed_base': True,
+        'base_pos': np.array([5.0, 1.5, 0]),
+        'rest_arm_qpos': np.array(
+            [0.4083, 0.4691, -0.6216, -2.9606, -0.9926, 3.4903, 1.5129, 0.8, 0.8, 0.0, 0.0, 0.8]
+        ),
     }
 }
+

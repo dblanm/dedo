@@ -18,7 +18,7 @@ add further comments, unify the style, improve efficiency and add unittests.
 import glob
 import os
 
-from ray.rllib.agents.registry import get_agent_class
+from ray.tune.registry import get_trainable_cls
 from ray.rllib.rollout import rollout
 from ray.rllib.agents import a3c, impala, sac, ppo  # used dynamically
 from ray.rllib.agents.ddpg import apex, td3
@@ -69,7 +69,7 @@ def play(args, rl_config, num_episodes=10):
     assert(args.rl_algo in checkpt), \
         f'--rl_algo {args.rl_algo:s} must match checkpt algo'
     play_algo = 'APEX_DDPG' if args.rl_algo == 'ApexDDPG' else args.rl_algo
-    cls = get_agent_class(play_algo)
+    cls = get_trainable_cls(play_algo)
     agent = cls(env=args.env, config=rl_config)
     agent.restore(checkpt)
     rollout(agent, args.env, num_episodes=num_episodes,

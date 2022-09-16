@@ -42,7 +42,7 @@ def do_play(args, num_episodes=1):
     logdir = args.logdir
     cam_resolution = args.cam_resolution
     args = pickle.load(open(os.path.join(args.load_checkpt, 'args.pkl'), 'rb'))
-    args.debug = True
+    args.debug = False
     args.viz = logdir is None  # viz if not logging a video
     args.replay_size=10
     args.num_envs=0
@@ -82,7 +82,8 @@ def main(args):
           vec_env.observation_space.shape, 'action_space',
           vec_env.action_space.shape)
     rl_kwargs = {'learning_rate': args.lr, 'device': args.device,
-                 'tensorboard_log': args.logdir, 'verbose': 1}
+                 'tensorboard_log': args.logdir, 'verbose': 1,
+                 'n_steps': 128}  # TODO Testing reduced number of steps to check saving
     num_steps_between_save = args.log_save_interval*10
     if on_policy:
         num_steps_between_save *= 10  # less frequent logging

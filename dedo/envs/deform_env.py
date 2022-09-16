@@ -36,8 +36,9 @@ from ..utils.args import preset_override_util
 class DeformEnv(gym.Env):
     MAX_OBS_VEL = 20.0  # max vel (in m/s) for the anchor observations
     MAX_ACT_VEL = 10.0  # max vel (in m/s) for the anchor actions
-    WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
-    STEPS_AFTER_DONE = 500     # steps after releasing anchors at the end
+    WORKSPACE_BOX_SIZE = 10.0  # workspace box limits (needs to be >=1)
+    STEPS_AFTER_DONE = 10     # steps after releasing anchors at the end
+    # TODO Originally STEPS_AFTER_DONE = 500  # steps after releasing anchors at the end
     FORCE_REWARD_MULT = 1e-4   # scaling for the force penalties
     FINAL_REWARD_MULT = 400    # multiply the final reward (for sparse rewards)
     SUCESS_REWARD_TRESHOLD = 2.5  # approx. threshold for task success/failure
@@ -185,7 +186,7 @@ class DeformEnv(gym.Env):
                         tmp_key = f'bags/totes/bag{tmp_id0:d}_0.obj'
                         assert (tmp_key in DEFORM_INFO)
                         DEFORM_INFO[deform_obj] = DEFORM_INFO[tmp_key].copy()
-            else:
+            else:  # TODO ------------------ HANG CLOTH
                 deform_obj = TASK_INFO[args.task][args.version - 1]
 
 
@@ -282,6 +283,10 @@ class DeformEnv(gym.Env):
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
 
         obs, _ = self.get_obs()
+
+        # from matplotlib import pyplot as plt
+        # plt.imshow(obs)
+        # plt.savefig('input_image.png')
         return obs
 
     def make_anchors(self):
